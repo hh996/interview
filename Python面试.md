@@ -259,3 +259,49 @@ print(c)    # sss
 
 ## 18 Python的is
 is是对比地址,==是对比值
+
+## 19 Python 多线程多进程
+```python
+import threading
+import multiprocessing
+import time
+
+
+def print_nums():
+    for i in range(5):
+        time.sleep(1)
+        print(i)
+
+
+def print_strs():
+    for s in "abcde":
+        time.sleep(1)
+        print(s)
+
+
+# 线程
+thread1 = threading.Thread(target=print_nums)
+thread2 = threading.Thread(target=print_strs)
+thread1.start()
+thread2.start()
+
+
+thread1.join()  # 程序将等待线程执行完成，然后继续执行接下来的代码;目的是保证主线程在子线程执行完成后再继续执行，避免出现线程还在执行时主线程已经结束的情况
+thread2.join()
+print("Both threads have finished.")
+
+if __name__ == '__main__':
+    process1 = multiprocessing.Process(target=print_nums)
+    process2 = multiprocessing.Process(target=print_strs)
+
+    multiprocessing.freeze_support()  # 添加这一行和 if __name__..., 因为windows启动多进程有点问题
+
+    process1.start()
+    process2.start()
+
+    process1.join()
+    process2.join()
+
+    print("Both processes have finished.")
+
+```
