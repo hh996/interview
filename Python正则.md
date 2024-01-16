@@ -83,7 +83,7 @@ pattern = re.compile(r'\d+')
 ```python
 import re
 
-text = "apple apple"
+text = "apple apple"[MySQL面试.md](MySQL%C3%E6%CA%D4.md)
 pattern = re.compile(r'(\b\w+\b) \1')  # 匹配重复的单词
 match = pattern.search(text)
 
