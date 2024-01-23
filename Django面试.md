@@ -13,18 +13,15 @@
 
 模板（Template）：
 
-
-。
-
 视图（View）：视图是模型和模板之间的协调者，负责处理用户的请求，从模型中检索数据，并将数据传递给模板，最终生成响应。
 
 工作流程如下：用户发起请求→视图处理请求→模板生成响应→响应返回给用户
 
 ## 3 Django中的模块
-django.urls：提供 URL 配置和路由的功能，用于将请求映射到相应的视图。
-django.views：包含一些通用视图和基础视图的功能，用于处理常见的 HTTP 请求。
-django.test： 提供用于编写单元测试和功能测试的工具和类。
-django.settings： 包含 Django 项目的设置，如数据库配置、调试设置等。
+django.urls：提供 URL 配置和路由的功能，用于将请求映射到相应的视图。  
+django.views：包含一些通用视图和基础视图的功能，用于处理常见的 HTTP 请求。  
+django.test： 提供用于编写单元测试和功能测试的工具和类。  
+django.settings： 包含 Django 项目的设置，如数据库配置、调试设置等。  
 django.management： 提供命令行管理工具，用于执行与项目和应用程序管理相关的任务。
 
 ## 4 Django自带的Admin
@@ -46,6 +43,84 @@ def application(environ, start_response):
 安全性： 开启调试模式会暴露应用程序的内部信息，包括详细的错误信息、文件路径等
 性能： 调试模式会导致应用程序运行时额外的开销
 不稳定的代码： 在调试模式下，Django 会尝试捕获异常，关闭调试模式有助于及早发现和解决这些问题。
+
+## 7 CSRF
+CSRF（Cross-Site Request Forgery，跨站请求伪造）
+Django中的CSRF保护机制通常使用一个特殊的令牌（CSRF令牌）来验证请求的合法性。这个令牌会嵌入到表单中，或者作为Cookie发送给客户端
+CSRF保护是默认开启的，你可以在模板中使用 {% csrf_token %} 标签来包含CSRF令牌。在视图中，Django也提供了 @csrf_protect 装饰器，用于启用CSRF保护
+
+## 7 Q
+在Django中，Q 对象是用于构建复杂的查询条件的一个工具。它允许你使用逻辑运算符（AND、OR、NOT）来组合查询条件，以便更灵活地构建数据库查询。
+Q 对象主要用于在查询中使用复杂的逻辑条件，尤其是在需要多个条件结合在一起时。它可以用来构建更复杂的 filter 或 exclude 查询
+```python
+from django.db.models import Q
+from myapp.models import MyModel
+
+# 使用Q对象构建查询条件
+query = Q(name__icontains='John') | Q(age__gte=25)
+
+# 在查询中使用Q对象
+results = MyModel.objects.filter(query)
+
+# 或者使用~Q对象表示NOT操作
+results = MyModel.objects.filter(~Q(name='Bob'))
+```
+
+## 8 Cache
+Django提供了内置的缓存框架，你可以配置为使用多种后端存储
+配置缓存后端： 在Django的设置文件中，你可以配置缓存后端。Django支持多种后端，包括内存缓存、数据库缓存、文件系统缓存等
+```python
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+```
+
+## 9 url 里的 name
+name 可以用于在 templates，models，views ..... 中得到对应的网址，相当于给网址取了个名字，只要这个名字不变，网址变了也能通过名字获取到。
+https://www.cnblogs.com/rexcheny/p/9635879.html
+
+## 10 Django 如何配置 log
+在settings.py中配置日志设置
+```python
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/path/to/django/debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+```
+在代码中记录日志
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+def my_view(request):
+    try:
+        # 你的代码逻辑
+        result = 1 / 0  # 引发一个异常
+    except Exception as e:
+        # 记录异常日志
+        logger.exception("An error occurred: %s", str(e))
+    return HttpResponse("View executed successfully.")
+```
+
 
 # Model层
 ## 1 Django Migrations的作用
@@ -201,7 +276,7 @@ count = Book.objects.contain_keyword_count(keyword)
 ```
 
 ## 10 Raw SQL的效率跟ORM的效率
-Raw SQL：灵活，性能优化；可读性差，数据库移植性差
+Raw SQL：灵活，性能优化；可读性差，数据库移植性差  
 ORM：可读性高，数据库移植性好，安全性高；性能损耗，灵活性较低
 
 ## 11 Django内置提供的权限逻辑
@@ -332,5 +407,6 @@ class MyForm(forms.Form):
         return age
 
 ```
+
 # Template层
 接触的比较少

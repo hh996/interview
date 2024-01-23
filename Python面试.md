@@ -45,7 +45,7 @@ a=A()
 静态方法其实和普通的方法一样，可以a.static_foo(x)或者A.static_foo(x)来调用
 
 ## 4 类变量和实例变量
-类变量:所有实例共享同一个类变量。当一个实例修改了类变量的值，其他实例也会受到影响。
+类变量:所有实例共享同一个类变量。当一个实例修改了类变量的值，其他实例也会受到影响。  
 实例变量:self.xxx, 每个实例都有独立的实例变量，修改一个实例的实例变量不会影响其他实例
 ```python
 class Test(object):  
@@ -182,7 +182,8 @@ class Singleton:
 ```
 
 ## 12 GIL线程全局锁
-线程全局锁(Global Interpreter Lock), Python为了保证线程安全**一个核只能在同一时间运行一个线程**。GIL对于CPU密集型任务的性能影响较大，而对于I/O密集型任务的性能影响较小。在处理I/O时，线程可以释放GIL，允许其他线程执行。
+线程全局锁(Global Interpreter Lock), Python为了保证线程安全**一个核只能在同一时间运行一个线程**。   
+GIL对于CPU密集型任务的性能影响较大，而对于I/O密集型任务的性能影响较小。在处理I/O时，线程可以释放GIL，允许其他线程执行。  
 考虑使用多进程而非多线程，使用其他Python解释器，如Jython（Java平台）
 
 ## 13 协程(Coroutine)
@@ -217,7 +218,7 @@ for value in gen:
 闭包(Closure)是一种函数对象(函数是一等公民，这意味着函数可以作为变量、参数传递给其他函数，也可以在函数内定义函数,闭包就是由这种函数嵌套的特性衍生而来), 闭包必须满足以下几点:
 1. 必须有一个内嵌函数
 2. 内嵌函数必须引用外部函数中的变量
-3. 外部函数的返回值必须是内嵌函数
+3. 外部函数的返回值必须是内嵌函数  
 和装饰器里AOP的思想有点像
 
 ## 16 lambda函数
@@ -234,27 +235,24 @@ print(squared_numbers)  # 输出 [1, 4, 9, 16, 25]
 ```
 
 ## 17 Python里的copy
-b = a: 赋值引用，a 和 b 都指向同一个对象
+b = a: 赋值引用，其实就是对象的引用（别名）
 
-b = a.copy(): 浅拷贝, a 和 b 是一个独立的对象，但他们的子对象还是指向统一对象（是引用）,生成了一个新的变量，而变量所指向的对象和原来的是一样的
+b = a.copy(): 拷贝父对象，不会拷贝对象的内部的子对象
 
 b = copy.deepcopy(a): 深度拷贝, a 和 b 完全拷贝了父对象及其子对象，两者是完全独立的。
 ```python
-# 赋值引用和浅拷贝的区别
-original_list = [1, 2, [3, 4]]
-a = copy.copy(original_list)
-original_list[2][1] = 0
-print(original_list)    # [1, 2, [3, 0]]
-print(a)    # [1, 2, [3, 0]]
+a = {1: [1,2,3]}
+b = copy.copy(a)
+c = copy.deepcopy(a)
+b[1] = "b"
+c[1] = "c"
+print(a)
+print(b)
+print(c)
 
-
-origin = "sss"
-b = origin
-c = copy.copy(origin)
-origin = "asd"
-print(origin)   # asd
-print(b)    # sss
-print(c)    # sss
+# {1: [1, 2, 3]}
+# {1: 'b'}
+# {1: 'c'}
 ```
 
 ## 18 Python的is
@@ -305,3 +303,7 @@ if __name__ == '__main__':
     print("Both processes have finished.")
 
 ```
+
+## 20 垃圾回收
+引用计数  
+循环垃圾回收（Cycle Collector）:为了解决循环引用问题，Python 使用了循环垃圾回收器。这个回收器会查找并清理那些被循环引用占用的内存。循环垃圾回收器会周期性地检测程序中的循环引用，并释放无法访问的对象
