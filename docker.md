@@ -22,8 +22,36 @@ $ docker run -it --rm ubuntu:18.04 bash
 docker run 就是运行容器的命令  
 -it:-i：交互式操作，一个是 -t 终端
 --rm:这个参数是说容器退出后随之将其删除。  
-bash：放在镜像名后的是 命令，这里我们希望有个交互式 Shell，因此用的是 bash  
-列出镜像
+bash：启动一个 bash 
 ```shell
 docker image ls
+```
+
+# 容器
+启动镜像，生成容器
+```shell
+docker run -it ubuntu:18.04 /bin/bash
+```
+如果使用了 -d 参数运行容器,容器会在后台运行
+```shell
+docker run -d ubuntu:18.04 /bin/sh -c "while true; do echo hello world; sleep 1; done"
+77b2dc01fe0f3f1265df143181e7b9af5e05279a884f4776ee75350ea9d8017a
+```
+终止容器
+```shell
+docker container stop 9218f20d20fe
+```
+进入容器
+```shell
+docker attach 243c
+```
+导入导出
+```shell
+docker export 7691a814370e > ubuntu.tar
+docker import 
+```
+删除容器
+```shell
+docker container rm trusting_newton # 删除一个
+docker container prune
 ```

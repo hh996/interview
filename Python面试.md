@@ -220,6 +220,7 @@ for value in gen:
 2. 内嵌函数必须引用外部函数中的变量
 3. 外部函数的返回值必须是内嵌函数  
 和装饰器里AOP的思想有点像
+闭包是由另一个函数返回的函数对象。我们使用它们来消除代码冗余。
 
 ## 16 lambda函数
 lambda 函数是一种匿名函数，也称为 lambda 表达式
@@ -307,3 +308,92 @@ if __name__ == '__main__':
 ## 20 垃圾回收
 引用计数  
 循环垃圾回收（Cycle Collector）:为了解决循环引用问题，Python 使用了循环垃圾回收器。这个回收器会查找并清理那些被循环引用占用的内存。循环垃圾回收器会周期性地检测程序中的循环引用，并释放无法访问的对象
+
+## 21 列表和元组有什么区别
+元组是不可变的（Immutable），一旦创建，元组的内容就不能被修改，添加或删除元素，或者改变大小。
+
+## 22 Python 切片
+切片是 Python 中用于从序列（例如列表、元组、字符串等）中获取子序列的一种机制。切片的语法形式是 start:stop:step，其中：
+start 表示起始索引，切片包含该索引对应的元素。  
+stop 表示终止索引，切片不包含该索引对应的元素。  
+step 表示步长，表示从起始索引到终止索引每隔多少个元素取一个  
+```python
+# 切片列表
+my_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+# 获取索引为2到5（不包含）的元素
+slice_1 = my_list[2:5]
+print(slice_1)  # 输出：[2, 3, 4]
+
+# 获取索引为2到末尾的元素
+slice_2 = my_list[2:]
+print(slice_2)  # 输出：[2, 3, 4, 5, 6, 7, 8, 9]
+
+# 获取开头到索引为5（不包含）的元素
+slice_3 = my_list[:5]
+print(slice_3)  # 输出：[0, 1, 2, 3, 4]
+
+# 获取所有元素，步长为2
+slice_4 = my_list[::2]
+print(slice_4)  # 输出：[0, 2, 4, 6, 8]
+
+# 逆序列表
+slice_5 = my_list[::-1]
+print(slice_5)  # 输出：[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+
+```
+
+## 23 chr() 和 ord()
+chr() 函数返回表示 Unicode 代码点为整数的字符的字符串, 例如，chr(122) 返回字符串 z
+ord() 返回一个表示字符的 Unicode 代码格式的整数,  ord("z") 122
+
+##  24 __new__和__init__区别
+__new__ 主要用于创建对象，返回一个实例。  
+__init__ 主要用于初始化对象，不返回值。  
+__new__ 在对象创建之前调用，负责对象的创建和返回。  
+__init__ 在对象创建后调用，负责对象的初始化。  
+
+## 25 字典和 json 转换
+字典转 json
+```python
+import json
+dict1 = {'zhangfei':1, "liubei":2, "guanyu": 4, "zhaoyun":3}
+myjson = json.dumps(dict1)
+myjson
+# '{"zhangfei": 1, "liubei": 2, "guanyu": 4, "zhaoyun": 3}'
+```
+json 转字典
+```python
+mydict = json.loads(myjson)
+mydict
+# {'zhangfei': 1, 'liubei': 2, 'guanyu': 4, 'zhaoyun': 3}
+```
+
+## 26 快速排序
+```python
+def quickSort(nums, left, right):
+    if left < right:
+        index = partion(nums, left, right)
+        quickSort(nums, left, index-1)
+        quickSort(nums, index+1, right)
+    return nums
+
+
+def partion(nums, low, high):
+    pivot = nums[low]
+    while low < high:
+        while low < high and nums[high] >= pivot:
+            high -= 1
+        nums[low] = nums[high]
+        while low < high and nums[low] <= pivot:
+            low += 1
+        nums[high] = nums[low]
+    nums[low] = pivot
+    return low
+
+arr = [i for i in range(9,-1,-1)]
+
+print(quickSort(arr, 0, 9))
+
+```
+

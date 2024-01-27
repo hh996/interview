@@ -283,6 +283,20 @@ ORM：可读性高，数据库移植性好，安全性高；性能损耗，灵�
 Django 的权限系统使用 django.contrib.auth.models.Permission 模型来表示权限；用户可以被分配到用户组，而用户组可以拥有一组权限
 @login_required，用于在视图中进行权限检查
 
+## 12 如何为模型建立索引
+db_index=True
+```python
+from django.db import models
+class YourModel(models.Model):
+    # 为列建立索引
+    your_column = models.CharField(max_length=100, db_index=True)
+    class Meta:
+        indexes = [
+            models.Index(fields=['your_column']),
+            # 你可以添加更多的索引...
+        ]
+```
+
 # View层
 ## 1 Function-Based Views（函数视图）和 Class-Based Views（类视图）
 Function-Based Views（函数视图）：使用函数来定义视图, 简洁灵活
@@ -382,7 +396,6 @@ def get_data():
         data = queryset  # 假设这是数据库查询结果
         cache.set(key, data, timeout=3600)  # 设置缓存时间为 1 小时
     return data
-
 ```
 # Form 层
 ## 1 Form的作用
@@ -410,3 +423,7 @@ class MyForm(forms.Form):
 
 # Template层
 接触的比较少
+
+
+函数视图   类试图的处理 as view
+正向反向查询
