@@ -38,6 +38,8 @@ def application(environ, start_response):
     start_response(status, response_headers)    # 调用了 start_response 函数，将状态码和响应头传递给 Web 服务器
     return [HELLO_WORLD]
 ```
+WSGI是Python在处理HTTP请求时，规定的一种处理方式。如一个HTTP Request过来了，那么就有一个相应的处理函数来进行处理和返回结果。WSGI就是规定这个处理函数的参数长啥样的，它的返回结果是长啥样的？至于该处理函数的名子和处理逻辑是啥样的，那无所谓。简单而言，WSGI就是规定了处理函数的输入和输出格式。
+
 
 ## 6 为什么正式部署时不要开启DEBUG = True配置
 安全性： 开启调试模式会暴露应用程序的内部信息，包括详细的错误信息、文件路径等
@@ -50,20 +52,27 @@ Django中的CSRF保护机制通常使用一个特殊的令牌（CSRF令牌）来
 CSRF保护是默认开启的，你可以在模板中使用 {% csrf_token %} 标签来包含CSRF令牌。在视图中，Django也提供了 @csrf_protect 装饰器，用于启用CSRF保护
 
 ## 7 Q
-在Django中，Q 对象是用于构建复杂的查询条件的一个工具。它允许你使用逻辑运算符（AND、OR、NOT）来组合查询条件，以便更灵活地构建数据库查询。
-Q 对象主要用于在查询中使用复杂的逻辑条件，尤其是在需要多个条件结合在一起时。它可以用来构建更复杂的 filter 或 exclude 查询
+Q查询：对数据的多个字段联合查询（常和且或非"&|~"进行联合使用）
+F查询：提供了一种方式，允许在数据库层面上执行比较和计算、字段值的更新
 ```python
 from django.db.models import Q
 from myapp.models import MyModel
 
 # 使用Q对象构建查询条件
 query = Q(name__icontains='John') | Q(age__gte=25)
-
 # 在查询中使用Q对象
 results = MyModel.objects.filter(query)
 
-# 或者使用~Q对象表示NOT操作
-results = MyModel.objects.filter(~Q(name='Bob'))
+# 假设有一个模型（Model）定义如下：
+from django.db import models
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    quantity = models.IntegerField()
+
+# 使用 "F 查询"，您可以在查询中引用模型字段，而不是具体的值。例如，如果您想查询价格小于库存量的图书：
+from django.db.models import F
+books = Book.objects.filter(price__lt=F('quantity'))
 ```
 
 ## 8 Cache
@@ -120,6 +129,41 @@ def my_view(request):
         logger.exception("An error occurred: %s", str(e))
     return HttpResponse("View executed successfully.")
 ```
+
+## 11 ASGI
+ASGI是异步网关协议接口，一个介于网络协议服务和Python应用之间的标准接口，能够处理多种通用的协议类型，包括HTTP，HTTP2和WebSocket。  
+ASGI对于WSGI原有的模式的支持和WebSocket的扩展，即ASGI是WSGI的扩展。
+
+## 12 设计模式
+设计模式是在软件设计中常见问题的最佳解决方案。根据目的和用途，设计模式可以分为创建型模式、结构型模式和行为型模式三类。
+
+创建型模式：关注对象创建的最佳方式。主要有***单例模式、工厂模式***、抽象工厂模式、建造者模式和原型模式。  
+结构型模式：关注如何组合类和对象以形成更大的结构。主要有适配器模式、***装饰器模式***、代理模式、外观模式、桥接模式、组合模式和享元模式。  
+行为型模式：关注对象之间的通信和算法选择。主要有策略模式、模板方法模式、***观察者模式***、迭代器模式、责任链模式、命令模式、备忘录模式、状态模式、访问者模式、中介者模式和解释器模式。  
+
+在 Django 中，主要用到了以下几种设计模式：
+
+工厂模式：Django 的模型层使用了工厂模式来创建和操作数据库表。工厂模式用于创建对象的最佳方式，特别是当对象的创建方式复杂或不确定时。  
+单例模式：在 Django 中，某些应用或中间件可能使用单例模式来确保全局只有一个实例。例如，Django 的缓存系统使用了单例模式来确保全局只有一个缓存系统。  
+装饰器模式：Django 的装饰器用于修改或增强函数或类的行为。它们可以用来处理认证、授权、日志记录等。  
+观察者模式：Django 的信号系统使用了观察者模式。当某个事件发生时（如模型对象的创建、更新或删除），可以自动触发一系列的函数或方法。  
+
+单例模式 (Singleton Pattern):  
+保证一个类只有一个实例，并提供一个全局访问点。    
+例子：数据库连接、日志记录器等。  
+
+工厂模式 (Factory Pattern):  
+定义一个接口用于创建对象，但由子类决定实例化哪个类。    
+例子：GUI库中的创建不同类型窗口的工厂。  
+
+装饰者模式 (Decorator Pattern):  
+动态地给一个对象添加一些额外的职责，就增加功能而言，装饰者模式比生成子类更为灵活。  
+例子：输入输出流的装饰，如BufferedInputStream
+
+观察者模式 (Observer Pattern):  
+定义了对象间一对多的依赖关系，使得当一个对象改变状态时，所有依赖它的对象都会得到通知并自动更新。  
+例子：GUI中的事件处理、发布-订阅系统。
+
 
 
 # Model层
@@ -210,8 +254,7 @@ class BaseModel(models.Model):
 ```
 
 ## 6 QuerySet的作用，QuerySet优化措施
-QuerySet 用于构建和执行数据库查询, 如 filter()、exclude() 等
-
+QuerySet 用于构建和执行数据库查询, 如 filter()、exclude()、all() 等
 优化措施：使用 values() 或 only() 方法，仅获取需要的字段
 ```python
 # 仅获取姓名和年龄字段
@@ -306,6 +349,7 @@ from django.http import HttpResponse
 def my_view(request):
     return HttpResponse("Hello, World!")
 ```
+
 ## 2 Class-Based Views（类视图）
 允许将不同 HTTP 方法（如 GET、POST 等）的逻辑放在同一个类中
 ```python
@@ -316,6 +360,7 @@ class MyView(View):
     def get(self, request):
         return HttpResponse("Hello, World!")
 ```
+
 ## 3 Class-based View添加login required装饰器
 使用 @method_decorator 装饰器将 login_required 装饰器应用到类视图的方法上
 ```python
@@ -329,6 +374,7 @@ class MyProtectedView(View):
     def get(self, request):
         return HttpResponse("This is a protected view. You are logged in.")
 ```
+
 ## 4 Middleware在Django系统中的作用
 Middleware 在 Django 中是一个处理 HTTP 请求和响应的钩子系统,允许开发者在请求到达视图之前或响应发送到客户端之前执行自定义的代码
 ```python
@@ -381,8 +427,10 @@ def my_view(request):
 request 和 HttpResponse，分别用于表示客户端发起的请求和服务器返回的响应
 request 对象代表了客户端发起的 HTTP 请求
 HttpResponse 对象用于构建服务器返回给客户端的 HTTP 响应
+
 ## 9 图片
 使用 ImageField 字段来存储图片，在视图中处理表单提交
+
 ## 10 Django的缓存
 数据库查询缓存（Queryset Caching）
 ```python
@@ -397,6 +445,33 @@ def get_data():
         cache.set(key, data, timeout=3600)  # 设置缓存时间为 1 小时
     return data
 ```
+
+## 11 django dispatch
+Django中dispatch()函数的用法通常与HTTP请求方法装饰器结合使用，这些装饰器映射了对应的请求方法，如@require_GET、@require_POST等。然而，实际上在Django的类视图（Class-Based Views）中，dispatch()方法并不需要显式地与这些装饰器一起使用，因为它是视图基类（通常是View）中的一个方法，已经被设计好用于根据请求方法分派到相应的处理函数。
+dispatch()方法在视图类中的工作方式是：当一个请求到达时，Django会根据URL配置调用相应的视图类。视图类的as_view()方法实际上会返回一个函数，这个函数在被调用时会实例化视图类，并调用其dispatch()方法。dispatch()方法查看请求的类型（GET、POST等），然后调用类中的相应方法（如get()、post()等）来处理请求。
+下面是一个简单的示例，展示了如何在Django中使用dispatch()方法：
+```python
+from django.http import HttpResponse  
+from django.views import View  
+  
+class MyView(View):  
+    def get(self, request):  
+        # 处理GET请求  
+        return HttpResponse('Hello, World!')  
+  
+    def post(self, request):  
+        # 处理POST请求  
+        return HttpResponse('Hello, POST!')  
+  
+    def dispatch(self, request, *args, **kwargs):  
+        # 在这里可以添加一些前置操作，比如权限检查  
+        # 如果检查不通过，可以返回HttpResponseForbidden等响应  
+        # 否则，调用父类的dispatch方法继续处理请求  
+        return super().dispatch(request, *args, **kwargs)
+```
+在这个例子中，MyView类继承自Django的View类。它定义了get()和post()方法来处理GET和POST请求。dispatch()方法被重写以添加一些自定义逻辑，比如权限检查。最后，通过调用super().dispatch()来确保请求被正确地分派到get()或post()方法。
+
+
 # Form 层
 ## 1 Form的作用
 处理 HTML 表单， 将用户输入数据验证、转换和呈现到 HTML 表单的便捷方式
@@ -424,6 +499,3 @@ class MyForm(forms.Form):
 # Template层
 接触的比较少
 
-
-函数视图   类试图的处理 as view
-正向反向查询

@@ -1,4 +1,4 @@
-# 1 基本概念
+# 基本概念
 - 镜像（Image）
 - 容器（Container）
 - 仓库（Repository）
@@ -9,7 +9,39 @@
     ## 3 仓库
     仓库是用于存储 Docker 镜像的地方
 
-# 2 常用命令
+# 镜像 Image
+Dockerfile 是用于构建 Docker 镜像的文本文件。它包含一系列指令，每个指令都描述了构建镜像的一步操作。通过编写 Dockerfile，你可以定义镜像中的操作系统、环境变量、应用程序和服务的配置等。
+```dockerfile
+# 使用官方的 Python 镜像作为基础镜像
+FROM python:3.8
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制当前目录下的所有文件到工作目录
+COPY . /app
+
+# 安装应用程序所需的依赖
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 暴露应用程序运行的端口
+EXPOSE 80
+
+# 定义容器启动时运行的命令
+CMD ["python", "app.py"]
+
+```
+通过执行 docker build 命令，你可以使用这个 Dockerfile 来构建一个包含你的应用程序和所有依赖的镜像
+```shell
+docker build -t my-web-app .
+```
+使用构建的镜像运行容器
+```shell
+docker run -p 8080:80 my-web-app
+```
+
+
+# 常用命令
 获取镜像  
 ```shell
 $ docker pull [选项] [Docker Registry 地址[:端口号]/]仓库名[:标签]
@@ -27,7 +59,7 @@ bash：启动一个 bash
 docker image ls
 ```
 
-# 容器
+# 容器 Container
 启动镜像，生成容器
 ```shell
 docker run -it ubuntu:18.04 /bin/bash
@@ -54,4 +86,31 @@ docker import
 ```shell
 docker container rm trusting_newton # 删除一个
 docker container prune
+```
+
+# compose
+Compose 定位是 定义和运行多个 Docker 容器的应用
+Compose 中有两个重要的概念：  
+服务 (service)：一个应用的容器，实际上可以包括若干运行相同镜像的容器实例。  
+项目 (project)：由一组关联的应用容器组成的一个完整业务单元，在 docker-compose.yml 文件中定义。  
+
+
+docker-compose.yml 文件，这个是 Compose 使用的主模板文件
+```shell
+version: '3'
+services:
+
+  web:
+    build: .
+    ports:
+     - "5000:5000"
+
+  redis:
+    image: "redis:alpine"
+```
+
+
+运行
+```shell
+$ docker-compose up
 ```
