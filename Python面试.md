@@ -123,7 +123,8 @@ def foo():
     print("i am foo")
 foo()
 ```
-在这个例子中，函数进入和退出时 ，被称为一个横切面，这种编程方式被称为面向切面(AOP)的编程
+在这个例子中，函数进入和退出时 ，
+被称为一个横切面，这种编程方式被称为面向切面(AOP)的编程
 AOP(面向切面编程，Aspect-Oriented Programming): 将横切关注点（Cross-Cutting Concerns）从主要业务逻辑中分离出来, 例如:日志记录
 
 ## 9 鸭子类型
@@ -397,3 +398,171 @@ print(quickSort(arr, 0, 9))
 
 ```
 
+## 27 python java c++ 区别
+Python： Python 是解释型语言，代码在运行时通过解释器逐行执行。
+Java： Java 是编译型语言，代码先被编译成字节码，然后在 Java 虚拟机（JVM）上执行。
+C++： C++ 是编译型语言，代码在编译时被转换成机器码，直接在计算机上运行
+
+## 28 Python异步任务
+使用asyncio库
+```python
+import asyncio
+
+async def print_fuck():
+    print("fuck")
+
+async def print_me():
+    # await 是Python中用于异步编程的关键字，通常与async关键字一起使用。在异步编程中，
+    # await 用于等待一个异步操作完成。它告诉解释器在执行到这一行代码时，如果遇到一个异步操作，
+    # 就挂起当前任务，让出控制权给事件循环，等待异步操作完成后再继续执行下面的代码。
+    await print_fuck()
+    print("me")
+
+asyncio.run(print_me())
+```
+
+## 29 True is False == False 结果
+(True is False) and (False == False) #  False
+
+## 30 Python消息队列
+在Python中，消息队列是一种常见的用于在不同组件之间传递消息的通信模式。Python有多个库可以用于实现消息队列，其中最常用的包括：
+
+1. **Queue 模块：**
+   Python标准库中的`queue`模块提供了`Queue`类，可以用于实现简单的先进先出（FIFO）队列。这对于在多线程应用程序中共享数据是有用的。以下是一个简单的例子：
+
+    ```python
+    from queue import Queue
+
+    # 创建一个队列
+    my_queue = Queue()
+
+    # 在队列中放入数据
+    my_queue.put("Message 1")
+    my_queue.put("Message 2")
+
+    # 从队列中取出数据
+    message = my_queue.get()
+    print(message)
+    ```
+
+2. **multiprocessing 模块：**
+   `multiprocessing`模块提供了一个`Queue`类，可以用于在多进程之间共享数据。这对于在并行处理中传递消息很有用。
+
+    ```python
+    from multiprocessing import Process, Queue
+
+    def worker(queue):
+        message = queue.get()
+        print(f"Worker received: {message}")
+
+    if __name__ == "__main__":
+        # 创建一个进程间共享的队列
+        shared_queue = Queue()
+
+        # 启动进程
+        process = Process(target=worker, args=(shared_queue,))
+        process.start()
+
+        # 向队列中放入数据
+        shared_queue.put("Hello from main process")
+
+        # 等待进程结束
+        process.join()
+    ```
+
+3. **Celery：**
+   `Celery`是一个分布式任务队列，用于处理异步任务。它可以用于将任务分发给多个工作进程或者远程工作者。
+    ```python
+    from celery import Celery
+
+    app = Celery('tasks', broker='pyamqp://guest@localhost//')
+
+    @app.task
+    def add(x, y):
+        return x + y
+    ```
+
+   在这个例子中，`Celery`通过`broker`参数指定了消息队列的位置。`add`函数是一个异步任务，可以被分发到不同的工作进程或者远程工作者中执行。
+
+这些都是不同场景下使用的消息队列的例子，你可以根据你的需求选择适合的库。
+
+## 31 https如何加密
+HTTPS通过在HTTP和TCP之间引入SSL/TLS层，使用加密和证书验证等机制来保护数据的机密性和完整性。这使得通过HTTPS传输的数据更难被窃听、篡改或伪造。
+
+## 32 Celery用法
+`Celery` 是一个用于处理异步任务的分布式任务队列框架，它允许你将任务发送到一个异步工作者（worker）集群，并通过消息中间件进行通信。以下是 `Celery` 的基本用法：
+
+1. **安装 Celery：**
+   使用以下命令安装 Celery：
+
+   ```bash
+   pip install celery
+   ```
+
+2. **创建 Celery 应用：**
+   在你的项目中创建一个 Celery 应用，通常在一个单独的模块中。例如，创建一个 `tasks.py` 文件：
+
+   ```python
+   # tasks.py
+   from celery import Celery
+
+   app = Celery('tasks', broker='pyamqp://guest@localhost//')
+
+   @app.task
+   def add(x, y):
+       return x + y
+   ```
+
+   在这个例子中，我们创建了一个 Celery 应用实例，并定义了一个异步任务 `add`。
+
+3. **启动 Celery Worker：**
+   启动 Celery worker 进程来处理任务。在命令行中运行：
+
+   ```bash
+   celery -A tasks worker --loglevel=info
+   ```
+
+   这里 `-A tasks` 参数指定了 Celery 应用所在的模块。
+
+4. **调用 Celery 任务：**
+   在你的应用中，你可以通过 Celery 应用实例的 `delay` 方法或者 `apply_async` 方法来调用任务。
+
+   ```python
+   # 在应用中调用任务
+   from tasks import add
+
+   result = add.delay(4, 4)
+   ```
+
+   或者使用 `apply_async`：
+
+   ```python
+   result = add.apply_async(args=(4, 4))
+   ```
+
+5. **获取任务结果：**
+   你可以通过 `get` 方法获取任务的执行结果：
+
+   ```python
+   result = add.delay(4, 4)
+   result.get()
+   ```
+
+   这会阻塞当前进程，直到任务完成并返回结果。
+
+6. **配置 Celery：**
+   Celery 提供了丰富的配置选项，你可以配置消息中间件、结果存储、序列化方式等。配置通常放在一个名为 `celeryconfig.py` 的文件中。
+
+   ```python
+   # celeryconfig.py
+   broker_url = 'pyamqp://guest@localhost//'
+   result_backend = 'rpc://'
+   ```
+
+   在启动 worker 时，你可以通过 `-c` 参数指定配置文件：
+
+   ```bash
+   celery -A tasks worker --loglevel=info -c celeryconfig
+   ```
+
+这是一个基本的 Celery 使用示例。`Celery` 还支持更高级的特性，如任务重试、任务定时调度、分布式任务执行、任务结果存储等。你可以根据项目的需求，进一步配置和使用 `Celery`。

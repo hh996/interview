@@ -401,6 +401,7 @@ class TimingMiddleware:
         return response
 ```
 每当请求到达时，TimingMiddleware 将记录请求开始时间，并在响应发送之前计算和打印请求处理时间
+
 ## 5 settings中默认配置的MIDDLEWARES
 django.middleware.security.SecurityMiddleware
 django.contrib.sessions.middleware.SessionMiddleware

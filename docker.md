@@ -44,17 +44,19 @@ docker run -p 8080:80 my-web-app
 # 常用命令
 获取镜像  
 ```shell
-$ docker pull [选项] [Docker Registry 地址[:端口号]/]仓库名[:标签]
-$ docker pull ubuntu:18.04
+docker pull [选项] [Docker Registry 地址[:端口号]/]仓库名[:标签]
+docker pull ubuntu:18.04
 ```
 运行
 ```shell
-$ docker run -it --rm ubuntu:18.04 bash
+docker run -it --rm ubuntu:18.04 bash
 ```
 docker run 就是运行容器的命令  
 -it:-i：交互式操作，一个是 -t 终端
 --rm:这个参数是说容器退出后随之将其删除。  
 bash：启动一个 bash 
+
+# 查看镜像
 ```shell
 docker image ls
 ```
@@ -88,6 +90,10 @@ docker container rm trusting_newton # 删除一个
 docker container prune
 ```
 
+# 查看容器
+```shell
+docker ps
+```
 # compose
 Compose 定位是 定义和运行多个 Docker 容器的应用
 Compose 中有两个重要的概念：  
@@ -114,3 +120,47 @@ services:
 ```shell
 $ docker-compose up
 ```
+
+# 查看日志
+docker logs <container_id_or_name>
+
+# docker 更详细信息 
+docker inspect <container_id_or_name>
+
+# run和exec区别
+`docker run` 和 `docker exec` 是两个用于操作 Docker 容器的不同命令，它们有不同的目的和用法。
+
+1. **docker run:**
+   - **用途：** 用于创建并启动新的容器实例。
+   - **基本语法：**
+     ```bash
+     docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+     ```
+   - **说明：** `docker run` 命令主要用于创建新的容器并运行它。你可以通过该命令指定容器的镜像、运行参数、命令等。当你运行 `docker run` 时，Docker 将会创建一个新的容器实例，基于指定的镜像，并执行指定的命令。
+
+   示例：
+   ```bash
+   docker run -it --rm ubuntu /bin/bash
+   ```
+
+   这个例子将以交互模式启动一个基于 Ubuntu 镜像的容器，并在容器内运行 `/bin/bash` 命令。
+
+2. **docker exec:**
+   - **用途：** 用于在运行中的容器内执行命令。
+   - **基本语法：**
+     ```bash
+     docker exec [OPTIONS] CONTAINER COMMAND [ARG...]
+     ```
+   - **说明：** `docker exec` 命令用于在正在运行的容器内执行额外的命令。它允许你与正在运行的容器进行交互，而不需要重新创建一个新的容器。你需要指定容器的 ID 或者名称，并提供要在容器内执行的命令。
+
+   示例：
+   ```bash
+   docker exec -it my_container /bin/bash
+   ```
+
+   这个例子将以交互模式进入一个名为 `my_container` 的容器，并在容器内运行 `/bin/bash` 命令。
+
+**总结：**
+- `docker run` 主要用于创建和启动新的容器实例。
+- `docker exec` 用于在正在运行的容器内执行额外的命令。
+- 通常，`docker run` 用于启动容器，而 `docker exec` 用于与已运行的容器进行交互。
