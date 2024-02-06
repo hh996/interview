@@ -47,4 +47,5 @@ find /path/to/search -name "filename"
 ## 12 使用什么命令查看 ip 地址及接口信息
 ifconfig
 
-重启reboot
+## 13 重启
+reboot
