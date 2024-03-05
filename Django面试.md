@@ -340,6 +340,60 @@ class YourModel(models.Model):
         ]
 ```
 
+## 13 model 如何实现继承
+在Django中，你可以使用模型继承来实现继承关系。Django提供了三种模型继承方式：单表继承（OneToOneField）、抽象基类继承（abstract base class inheritance）和多表继承（multi-table inheritance）。
+
+以下是这三种继承方式的简要说明：
+
+1. **单表继承（OneToOneField）：**
+   
+   在单表继承中，每个子类都与父类共享相同的数据库表，通过`OneToOneField`建立与父类的关联。
+
+   ```python
+   from django.db import models
+
+   class Person(models.Model):
+       name = models.CharField(max_length=100)
+
+   class Employee(models.Model):
+       person = models.OneToOneField(Person, on_delete=models.CASCADE)
+       employee_id = models.CharField(max_length=10)
+   ```
+
+2. **抽象基类继承：**
+   
+   抽象基类继承是通过设置`abstract = True`来创建一个不对应数据库表的抽象基类。抽象基类本身不对应数据库中的表，但它的子类将包含在数据库中生成的表中
+
+   ```python
+   from django.db import models
+
+   class Animal(models.Model):
+       name = models.CharField(max_length=100)
+
+       class Meta:
+           abstract = True
+
+   class Cat(Animal):
+       purr_sound = models.CharField(max_length=50)
+   ```
+
+3. **多表继承：**
+   
+   多表继承会在数据库中创建一个父表和多个子表，每个子表都包含了父表的字段。
+
+   ```python
+   from django.db import models
+
+   class Person(models.Model):
+       name = models.CharField(max_length=100)
+
+   class Employee(Person):
+       employee_id = models.CharField(max_length=10)
+   ```
+
+
+
+
 # View层
 ## 1 Function-Based Views（函数视图）和 Class-Based Views（类视图）
 Function-Based Views（函数视图）：使用函数来定义视图, 简洁灵活
@@ -499,4 +553,3 @@ class MyForm(forms.Form):
 
 # Template层
 接触的比较少
-

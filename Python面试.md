@@ -174,12 +174,17 @@ from Singleton import singleton_instance
 ```
 ### 2 __new__
 ```python
-class Singleton:
+class A:
     _instance = None
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(Singleton, cls).__new__()
+            cls._instance = super(A,cls).__new__(cls)
         return cls._instance
+a1 = A()
+a2 = A()
+print(a1 is a2)
+# True
 ```
 
 ## 12 GIL线程全局锁
@@ -243,18 +248,16 @@ b = a.copy(): 拷贝父对象，不会拷贝对象的内部的子对象
 
 b = copy.deepcopy(a): 深度拷贝, a 和 b 完全拷贝了父对象及其子对象，两者是完全独立的。
 ```python
-a = {1: [1,2,3]}
+import copy
+
+a = [1, [1, 2, 3]]
 b = copy.copy(a)
 c = copy.deepcopy(a)
-b[1] = "b"
-c[1] = "c"
-print(a)
-print(b)
-print(c)
-
-# {1: [1, 2, 3]}
-# {1: 'b'}
-# {1: 'c'}
+a[1][0] = 2
+c[1][0] = 3
+print(a)  # [1, [2, 2, 3]]
+print(b)  # [1, [2, 2, 3]]
+print(c)  # [1, [3, 2, 3]]
 ```
 
 ## 18 Python的is
@@ -432,14 +435,14 @@ asyncio.run(print_me())
 
     ```python
     from queue import Queue
-
+   
     # 创建一个队列
     my_queue = Queue()
-
+   
     # 在队列中放入数据
     my_queue.put("Message 1")
     my_queue.put("Message 2")
-
+   
     # 从队列中取出数据
     message = my_queue.get()
     print(message)
@@ -450,22 +453,22 @@ asyncio.run(print_me())
 
     ```python
     from multiprocessing import Process, Queue
-
+   
     def worker(queue):
         message = queue.get()
         print(f"Worker received: {message}")
-
+   
     if __name__ == "__main__":
         # 创建一个进程间共享的队列
         shared_queue = Queue()
-
+   
         # 启动进程
         process = Process(target=worker, args=(shared_queue,))
         process.start()
-
+   
         # 向队列中放入数据
         shared_queue.put("Hello from main process")
-
+   
         # 等待进程结束
         process.join()
     ```
@@ -474,9 +477,9 @@ asyncio.run(print_me())
    `Celery`是一个分布式任务队列，用于处理异步任务。它可以用于将任务分发给多个工作进程或者远程工作者。
     ```python
     from celery import Celery
-
+   
     app = Celery('tasks', broker='pyamqp://guest@localhost//')
-
+   
     @app.task
     def add(x, y):
         return x + y
@@ -505,9 +508,9 @@ HTTPS通过在HTTP和TCP之间引入SSL/TLS层，使用加密和证书验证等�
    ```python
    # tasks.py
    from celery import Celery
-
+   
    app = Celery('tasks', broker='pyamqp://guest@localhost//')
-
+   
    @app.task
    def add(x, y):
        return x + y
@@ -530,7 +533,7 @@ HTTPS通过在HTTP和TCP之间引入SSL/TLS层，使用加密和证书验证等�
    ```python
    # 在应用中调用任务
    from tasks import add
-
+   
    result = add.delay(4, 4)
    ```
 
@@ -641,3 +644,88 @@ print(counter())  # 输出 3
 5. **最终结果：** 一旦完成了所有文件块的处理和合并，优先队列中的元素就是出现次数最多的前10个文件。
 
 这种方法通过分块处理文件和使用哈希映射进行统计，能够在有限的内存条件下完成大文件的处理。然而，由于分块处理可能导致某些文件出现在多个块中，需要在合并结果时进行适当的处理以确保准确性。
+
+## 36 抽象类
+在Python中，抽象类是一种特殊的类，它不能被实例化，而是用来定义其他类的共同接口。**抽象类通常包含至少一个抽象方法**，这是一种没有具体实现的方法，需要在子类中被重写。
+
+Python中实现抽象类的模块是`abc`（Abstract Base Classes）。以下是创建和使用抽象类的基本示例：
+
+```python
+from abc import ABC, abstractmethod
+
+# 定义一个抽象类
+class Shape(ABC):
+    @abstractmethod
+    def area(self):
+        pass
+
+    @abstractmethod
+    def perimeter(self):
+        pass
+
+# 尝试实例化抽象类会引发TypeError
+# shape = Shape()  # 这行代码会报错
+
+# 创建子类并实现抽象方法
+class Square(Shape):
+    def __init__(self, side):
+        self.side = side
+    def area(self):
+        return self.side * self.side
+
+    def perimeter(self):
+        return 4 * self.side
+
+# 实例化子类
+square = Square(5)
+
+# 调用子类的方法
+print("Area:", square.area())  # 输出: 25
+print("Perimeter:", square.perimeter())  # 输出: 20
+```
+
+在上面的例子中，`Shape`是一个抽象类，定义了两个抽象方法`area`和`perimeter`。然后，`Square`是`Shape`的子类，并实现了这两个抽象方法。**如果子类没有实现抽象类中的所有抽象方法，它仍然被认为是抽象类**，无法实例化。
+
+## 37 读写文件
+
+```python
+# 打开文件并读取内容
+with open('example.txt', 'r') as file:
+    content = file.read()
+
+# 输出文件内容
+print(content)
+
+# 打开文件并写入内容
+with open('example.txt', 'w') as file:
+    file.write('Hello, this is a sample text.\n')
+    file.write('This is another line in the file.\n')
+    
+# 打开二进制文件并写入内容
+with open('example.bin', 'wb') as file:
+    data = b'\x48\x65\x6c\x6c\x6f\x2c\x20\x57\x6f\x72\x6c\x64'
+    file.write(data)
+
+# 打开文件并追加内容
+with open('example.txt', 'a') as file:
+    file.write('This line is appended to the file.\n')
+
+with open('example.txt', 'w+') as file:
+    # 写入内容
+    file.write('Hello, this is a sample text.\n')
+
+    # 将文件指针移动到文件开头
+    file.seek(0)
+
+    # 读取文件内容
+    content = file.read()
+
+    print(content)
+
+
+```
+
+## 38 POST和PUT区别
+PUT： 通常用于更新资源或创建新资源。当客户端知道资源的URI，并希望在该URI下存储给定的实体时，可以使用PUT请求。PUT请求是幂等的，这意味着多次执行相同的PUT请求的效果应该与执行一次相同。
+POST： 主要用于提交实体数据，通常用于创建新资源
+
